@@ -1,8 +1,10 @@
 var express = require("express");
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
+var cookieParser = require('cookie-parser');
 const bodyParser = require("body-parser");
 
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({extended: true}));
 app.set("view engine", "ejs");
 
@@ -26,21 +28,29 @@ app.get("/", (req, res) => {
 });
 
 app.get('/urls', (req, res) => {
-  let templateVariables = { urls: urlDatabase };
+  let templateVariables = { urls: urlDatabase,
+                            username: req.cookies['username']};
   res.render('urls_index', templateVariables);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  let templateVariables = { urls: urlDatabase,
+                            username: req.cookies['username']};
+  res.render("urls_new", templateVariables);
 });
 
 app.post("/urls", (req, res) => {
   const key = generateRandomString();
   urlDatabase[key] = req.body.longURL;
   let templateVariables = { urls: urlDatabase,
-                            shortURL: key};
-
+                            shortURL: key,
+                            username: req.cookies['username']};
   res.redirect(`/urls/${key}`);
+});
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username');
+  res.redirect('/urls');
 });
 
 app.post("/urls/:id/delete", (req, res) => {
@@ -49,9 +59,21 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect('/urls');
 });
 
+app.post("/login", (req, res) => {
+  res.cookie('username', req.body.username);
+  res.redirect('/urls');
+});
+
 app.post("/urls/:id", (req, res) => {
   urlDatabase[req.params.id] = req.body.longURL;
   res.redirect('/urls');
+});
+
+app.get('/urls/:id', (req, res) => {
+  let templateVariables = { urls: urlDatabase,
+                            shortURL: req.params.id,
+                            username: req.cookies['username']};
+  res.render('urls_show', templateVariables);
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -59,13 +81,6 @@ app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
   res.redirect(longURL);
 });
-
-app.get('/urls/:id', (req, res) => {
-  let templateVariables = { urls: urlDatabase,
-                            shortURL: req.params.id };
-  res.render('urls_show', templateVariables);
-});
-
 
 app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);

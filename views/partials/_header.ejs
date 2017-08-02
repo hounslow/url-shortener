@@ -1,6 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-  <h1>
+<h1>
     URL Shortener!
-  </h1>
-</html>
+</h1>
+<% if (!username) { %>
+  <form action="/login" method="POST">
+    <label for="userName">Enter username:</label>
+    <input id="userName" name="username"">
+    <input type="submit" value="Submit">
+  </form>
+  <% } else { %>
+  <p><%= username %></p>
+  <form action="/logout" method="POST">
+    <input type="submit" value="Logout">
+  </form>
+<% } %>
