@@ -7,11 +7,19 @@
     <header>
       <% include partials/_header %>
     </header>
+    <% if (!user_id) { %>
+      Please login or register first!
+    <% } else { %>
       <% for(url in urls) { %>
-      <p><%= url %> --> <%= urls[url] %>
-      <form method="POST" action="/urls/<%= url %>/delete">
-        <button type="submit">Delete</button></form>
-      <p>
+        <p><%= url %> --> <%= urls[url]['longURL'] %>
+          <form method="POST" action="/urls/<%= url %>/delete">
+            <button type="submit">Delete</button></form>
+          </form>
+          <form method="GET" action="/urls/<%= url %>">
+            <button type="submit">Update</button></form>
+          </form>
+        <p>
       <% }; %>
+    <% }; %>
   </body>
 </html>
