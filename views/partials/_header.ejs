@@ -1,14 +1,15 @@
 <h1>
     URL Shortener!
 </h1>
-<% if (!username) { %>
-  <form action="/login" method="POST">
-    <label for="userName">Enter username:</label>
-    <input id="userName" name="username"">
-    <input type="submit" value="Submit">
+<% if (!user_id) { %>
+  <form action="/register" method="GET">
+    <input type="submit" value="Register">
+  </form>
+  <form action="/login" method="GET">
+    <input type="submit" value="Login">
   </form>
   <% } else { %>
-  <p><%= username %></p>
+  <p><%= user_id %></p>
   <form action="/logout" method="POST">
     <input type="submit" value="Logout">
   </form>
