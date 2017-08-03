@@ -47,11 +47,14 @@ app.get('/urls', (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-  let templateVariables = { urls: urlDatabase,
-                            user_id: req.cookies['user_id'],
-                            user: users[req.cookies['user_id']]};
-  res.render("urls_new", templateVariables);
-  console.log(users[req.cookies['user']]);
+  if (!req.cookies['user_id']){
+    res.status(302).redirect('/login');
+  } else {
+    let templateVariables = { urls: urlDatabase,
+                              user_id: req.cookies['user_id'],
+                              user: users[req.cookies['user_id']]};
+    res.render("urls_new", templateVariables);
+  }
 });
 
 app.get("/register", (req, res) => {
