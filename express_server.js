@@ -103,7 +103,7 @@ app.post("/login", (req, res) => {
   for (user in users){
     if (users[user]['email'] === req.body.email){
       if (users[user]['password'] === req.body.password){
-        res.cookie('user_id', generateRandomString());
+        res.cookie('user_id', users[user]['id']);
         res.redirect('/urls');
       } else {
         res.status(403).send("Password was inputed incorrectly");
