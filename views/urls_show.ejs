@@ -10,15 +10,15 @@
     <% if (!user_id) { %>
       Please login or register first!
     <% } else if (urls[shortURL]['userID'] != user_id) { %>
-      You don't own this URL! 
-    <% } else { %> 
+      You don't own this URL!
+    <% } else { %>
     <form method="GET" action="/urls %>">
       <button type="submit">See my URLs</button></form>
     </form>
     <p><%=urls[shortURL]['longURL']%> ---> <%= shortURL %>
-      <form method="POST" action="/urls/<%= shortURL %>">
+      <form method="POST" action="/urls/<%= shortURL %>?_method=PUT">
         <label for="longURL">URL:</label>
-              <input id="longURL" name="longURL">
+          <input id="longURL" name="longURL">
         <button type="submit">Update</button></form>
     </p>
     <% }; %>

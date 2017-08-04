@@ -5,6 +5,8 @@ var cookieSession = require('cookie-session');
 var stringGen = require('./string-gen');
 var filter = require('./url-filter');
 const bodyParser = require("body-parser");
+var methodOverride = require('method-override');
+
 
 var app = express();
 var PORT = process.env.PORT || 8080; // default port 8080
@@ -16,6 +18,7 @@ app.use(cookieSession({
   maxAge: 24 * 60 * 60 * 1000 // 24 hours
 }))
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(methodOverride('_method'));
 app.set("view engine", "ejs");
 
 
@@ -81,7 +84,7 @@ app.get("/register", (req, res) => {
  *         and redirect to main page
  */
 app.post("/register", (req, res) => {
-  const userID = stringGen;
+  const userID = stringGen();
   if (req.body.password === '' || req.body.email === ''){
     res.status(404).send('One of your entries was empty!');
   } else {
@@ -104,7 +107,7 @@ app.post("/register", (req, res) => {
  * Output: Add new shortURL, along with the match user_id and longURL to DB
  */
 app.post("/urls", (req, res) => {
-  const key = stringGen;
+  const key = stringGen();
   const user_id = req.session.user_id;
   urlDatabase[key] = {'userID': user_id, 'longURL': req.body.longURL};
   let templateVariables = { urls: urlDatabase,
@@ -123,11 +126,11 @@ app.post('/logout', (req, res) => {
 });
 
 /*
- * Input: POST request from /urls/:id/delete
+ * Input: DELETE request from /urls/:id/delete
  * Output: If user has ownership of url, delete and redirect to /urls,
  *         else response sends an error
  */
-app.post("/urls/:id/delete", (req, res) => {
+app.delete("/urls/:id", (req, res) => {
   if (urlDatabase[req.params.id]['userID'] === req.session.user_id){
     delete urlDatabase[req.params.id];
     res.redirect('/urls');
@@ -165,11 +168,11 @@ app.get("/login", (req, res) => {
 });
 
 /*
- * Input: "UPDATE" request from /urls/:id
+ * Input: PUT request from /urls/:id
  * Output: Updates the longURL from req.body if user has ownership over that
  *         url, else response sends an error.
  */
-app.post("/urls/:id", (req, res) => {
+app.put("/urls/:id", (req, res) => {
   if (urlDatabase[req.params.id]['userID'] === req.session.user_id){
     urlDatabase[req.params.id]['longURL'] = req.body.longURL;
     res.redirect('/urls');
