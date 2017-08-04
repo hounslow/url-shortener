@@ -11,7 +11,7 @@ app.set("view engine", "ejs");
 
 function generateRandomString() {
   var randomString = "";
-  var charset = "abcdefghijklmnopqrstuvwxyz0123456789";
+  var charset = "ABCDEFGHIJKLMNOPQESTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
   for (var i = 0; i < 6; i++){
     randomString += charset.charAt(Math.floor(Math.random() * charset.length));
@@ -28,11 +28,11 @@ const users = {
   "userRandomID": {
     id: "userRandomID",
     email: "user@example.com",
-    password: "purple-monkey-dinosaur" },
+    password: bcrypt.hashSync("purple-monkey-dinosaur", 10) },
   "user2RandomID": {
     id: "user2RandomID",
     email: "user2@example.com",
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", 10)
   }
 };
 
@@ -47,9 +47,6 @@ function urlsForUser(id){
 }
 
 app.get('/urls', (req, res) => {
-  //if (req.cookies['user_id']){
-    //res.send("Please login or register first");
-  // else {
     let templateVariables = { urls: urlsForUser(req.cookies['user_id']),
                             user: users[req.cookies['user_id']],
                             user_id: req.cookies['user_id']};
@@ -85,9 +82,10 @@ app.post("/register", (req, res) => {
       }
     }
   }
+  const hashedPassword = bcrypt.hashSync(req.body.password, 10);
   users[userID] = { id: userID,
                     email: req.body.email,
-                    password: req.body.password};
+                    password: hashedPassword};
   res.cookie('user_id', userID);
   res.redirect("/urls");
 });
@@ -122,7 +120,7 @@ app.post("/urls/:id/delete", (req, res) => {
 app.post("/login", (req, res) => {
   for (user in users){
     if (users[user]['email'] === req.body.email){
-      if (users[user]['password'] === req.body.password){
+      if (bcrypt.compareSync(req.body.password, users[user]['password'])){
         res.cookie('user_id', users[user]['id']);
         res.redirect('/urls');
       } else {
@@ -130,7 +128,6 @@ app.post("/login", (req, res) => {
       }
     }
   }
-    res.status(403).send('No user with this email can be found');
 });
 
 app.get("/login", (req, res) => {
