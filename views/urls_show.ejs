@@ -12,6 +12,9 @@
     <% } else if (urls[shortURL]['userID'] != user_id) { %>
       You don't own this URL! 
     <% } else { %> 
+    <form method="GET" action="/urls %>">
+      <button type="submit">See my URLs</button></form>
+    </form>
     <p><%=urls[shortURL]['longURL']%> ---> <%= shortURL %>
       <form method="POST" action="/urls/<%= shortURL %>">
         <label for="longURL">URL:</label>
