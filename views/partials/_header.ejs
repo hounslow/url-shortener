@@ -8,8 +8,8 @@
   <form action="/login" method="GET">
     <input type="submit" value="Login">
   </form>
-  <% } else { %>
-  <p>Username: <%= user_id %></p>
+<% } else { %>
+  <p>Email: <%= user['email'] %></p>
   <form action="/logout" method="POST">
     <input type="submit" value="Logout">
   </form>

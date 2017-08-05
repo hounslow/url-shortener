@@ -72,10 +72,14 @@ app.get("/urls/new", (req, res) => {
  * Output: renders registration page
  */
 app.get("/register", (req, res) => {
-  let templateVariables = { urls: urlDatabase,
-                            user_id: req.session.user_id,
-                            user: users[req.session.user_id]};
-  res.render("urls_registration", templateVariables);
+  if (req.session.user_id){
+    res.redirect('/urls');
+  } else {
+    let templateVariables = { urls: urlDatabase,
+                              user_id: req.session.user_id,
+                              user: users[req.session.user_id]};
+    res.render("urls_registration", templateVariables);
+  }
 });
 
 /*
@@ -153,8 +157,10 @@ app.post("/login", (req, res) => {
       } else {
         res.status(403).send("Password was inputed incorrectly");
       }
+      return;
     }
   }
+  res.status(403).send("Email was inputed wrong");
 });
 
 /*
@@ -162,9 +168,13 @@ app.post("/login", (req, res) => {
  * Output: Render login page
  */
 app.get("/login", (req, res) => {
-  var templateVariables = {user: users[req.session.user_id],
-                          user_id: req.session.user_id};
-  res.render("urls_login", templateVariables);
+  if (req.session.user_id){
+    res.redirect('/urls');
+  } else {
+    var templateVariables = {user: users[req.session.user_id],
+                            user_id: req.session.user_id};
+    res.render("urls_login", templateVariables);
+  }
 });
 
 /*
@@ -187,11 +197,15 @@ app.put("/urls/:id", (req, res) => {
  * Output: Renders the specific show page, allows the user to update from this view
  */
 app.get('/urls/:id', (req, res) => {
-  let templateVariables = { urls: urlDatabase,
-                            shortURL: req.params.id,
-                            user: users[req.session.user_id],
-                            user_id: req.session.user_id};
-  res.render('urls_show', templateVariables);
+    if (urlDatabase[req.params.id]){
+      let templateVariables = { urls: urlDatabase,
+                                shortURL: req.params.id,
+                                user: users[req.session.user_id],
+                                user_id: req.session.user_id};
+      res.render('urls_show', templateVariables);
+    } else {
+      res.send('Short URL does not exist!');
+    }
 });
 
 /*
@@ -199,8 +213,12 @@ app.get('/urls/:id', (req, res) => {
  * Output: Redirect to the longURL associated with the shortURL found urlDatabase
  */
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(longURL);
+  if (urlDatabase[req.params.shortURL].longURL){
+    const longURL = urlDatabase[req.params.shortURL].longURL;
+    res.redirect(longURL);
+  } else {
+    res.send("No website found with this URL");
+  }
 });
 
 /*
